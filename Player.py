@@ -3,7 +3,10 @@ import socket
 import sys
 import pickle
 import preflopLogic as prefL
-import BswapLogicFlop as BSLF
+import BSwapLogic as BSLF
+import ASwapLogic as ASLF
+import BSwapLogicRiver as BSLR
+import ASwapLogicRiver as ASLR
 
 
 """
@@ -127,19 +130,24 @@ class Player:
                     s.send(action)
                 
                 #goes to flop before swap logic
-                elif BswapLogic:
+                elif BswapLogicFlop:
                     action = BSLF.getAction()
                     s.send(action)
 
                 #goes to flop after swap logic
                 elif AswapLogic:
-                    action
+                    action = ASLF.getAction()
+                    s.send(action)
 
                 #goes to 4th card before swap logic
                 elif BswapLogicRiver:
+                    action = BSLR.getAction()
+                    s.send(action)
 
                 #goes to 4th card after swap logic
                 elif AswapLogicRiver:
+                    action = ASLR.getAction()
+                    s.send(action)
 
                 #goes to showdown logic
                 else:
