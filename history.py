@@ -40,6 +40,7 @@ class history:
 		self.showdownFoldToFourBet = 0.0
 
 	def updatePreflopStats(button, lastActions):
+		pass
 		self.preFlopUpdates += 0
 		if not button:
 			for action in lastActions:
