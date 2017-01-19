@@ -15,7 +15,31 @@ It is meant as an example of how a pokerbot should communicate with the engine.
 """
 
 FACE_VALS = ['2','3','4','5','6','7','8','9','T','J','Q','K','A']
-PAIR_ODDS = [84.9, 82.12, 79.63, 77.15, 74.66, 71.67, 68.72, 65.73, 62.7, 59.64, 56.26, 52.84, 49.39][::-1]
+PAIR_ODDS = [49.39, 52.84, 56.26, 59.64, 62.7, 65.73, 68.72, 71.67, 74.66, 77.15, 79.63, 82.12, 84.9]
+
+HAND_STATE = 0
+'''
+0 - After Post, preflop
+1 - After flop, pre-discard betting
+2 - After discard, betting
+3 - After turn, pre-discard betting
+4 - After discard, betting
+5 - After river
+'''
+class Action:
+    def __init__(self, s):
+        parts = s.split(':')
+        self.typ = parts[0]
+        if len(parts) > 1:
+            self.v1 = parts[1]
+            if len(parts) > 2:
+                self.v2 = parts[2]
+            if len(parts) > 3:
+                self.v3 = parts[3]
+class Card:
+    def __init__(self, s):
+        self.val = s[0]
+        self.suit = s[1]
 
 class Player:
     def run(self, input_socket):
@@ -46,11 +70,14 @@ class Player:
                 numHands = int(numHands)
                 timeBank = float(timeBank)
             elif word == "NEWHAND":
+                HAND_STATE = 0
                 [handId, button, holeCard1, holeCard2, myBank, otherBank, timeBank] = parts[1:]
                 handId = int(handId)
                 button = bool(button)
                 myBank = int(myBank)
                 otherBank = int(otherBank)
+                holeCard1 = Card(holeCard1)
+                holeCard2 = Card(holeCard2)
 
                 v1 = holeCard1[0]
                 v2 = holeCard2[0]
@@ -74,30 +101,27 @@ class Player:
                 [potSize, numBoardCards] = [int(e) for e in parts[1:3]]
                 boardCards = parts[3:3+numBoardCards]
                 numLastActions = int(parts[3+numBoardCards])
-                lastActions = parts[4+numBoardCards:4+numBoardCards+numLastActions]
+                lastActions = [Action(e) for e inparts[4+numBoardCards:4+numBoardCards+numLastActions]]
                 numLegalActions = int(parts[4+numBoardCards+numLastActions])
-                legalActions = parts[5+numBoardCards+numLastActions:5+numBoardCards+numLastActions+numLegalActions]
+                legalActions = [Action(e) for e in parts[5+numBoardCards+numLastActions:5+numBoardCards+numLastActions+numLegalActions]]
+
+                last_action = lastActions[-1]
+
 
                 #indentifies preflop state
                 preflop = numBoardCards == 0
                 #identifies flop before swap state
-                BswapLogicFlop = numBoardCards == 3
-                #identigies flop after swap state
-                AswapLogicFlop = numBoardCards == 3
+                BswapLogicFlop = numBoardCards == 3 and HAND_STATE == 0
+                #identifies flop after swap state
+                AswapLogicFlop = numBoardCards == 3 and HAND_STATE == 1
                 #identifies first river card state before swap
-                BswapLogicRiver = numBoardCards == 4
+                BswapLogicRiver = numBoardCards == 4 and HAND_STATE == 2
                 #identifies first river card state after swap
-                AswapLogicRiver = numBoardCards == 4
-
+                AswapLogicRiver = numBoardCards == 4 and HAND_STATE == 3
                 #identifies showdown state
                 showdown = numBoardCards == 5
 
-                for e in legalActions:
-                    parts = e.split(':')
-                    if parts[0] == 'RAISE':
-                        minRaise = int(parts[1])
-                        maxRaise = int(parts[2])
-                        break
+                HAND_STATE += 1
 
                 # goes to preflop logic file to get the new action
                 if preflop:

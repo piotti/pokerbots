@@ -1,4 +1,11 @@
-def getAction(lastActions, bb, potSize, minRaise, maxRaise, myBank):
+
+
+def getAction(lastActions, bb, potSize, myBank):
+    for e in legalActions:
+        if e.typ == 'RAISE':
+            minRaise = int(e.v1)
+            maxRaise = int(e.v2)
+            break
     lastActionParts = lastActions[-1].split(':')
     raised = lastActionParts[0] == 'RAISE'
     if raised:
