@@ -8,6 +8,7 @@ import ASwapLogic as ASLF
 import BSwapLogicRiver as BSLR
 import ASwapLogicRiver as ASLR
 import RiverLogic as RL
+import history as h
 
 
 """
@@ -57,6 +58,8 @@ class Player:
         hole_odds_dict = pickle.load(open('odds.pkl', 'rb'))
         for i in range(13):
             hole_odds_dict[(FACE_VALS[i]+'/'+FACE_VALS[i], False)] = PAIR_ODDS[i]
+
+        record = h.history()
         while True:
             # Block until the engine sends us a packet.
             data = f_in.readline().strip()
@@ -117,9 +120,9 @@ class Player:
                 #identifies flop after swap state
                 AswapLogicFlop = numBoardCards == 3 and HAND_STATE == 1
                 #identifies first river card state before swap
-                BswapLogicRiver = numBoardCards == 4 and HAND_STATE == 2
+                BswapLogicTurn = numBoardCards == 4 and HAND_STATE == 2
                 #identifies first river card state after swap
-                AswapLogicRiver = numBoardCards == 4 and HAND_STATE == 3
+                AswapLogicTurn = numBoardCards == 4 and HAND_STATE == 3
                 #identifies showdown state
                 showdown = numBoardCards == 5
 
@@ -127,31 +130,37 @@ class Player:
 
                 # goes to preflop logic file to get the new action
                 if preflop:
+                    record.updatePreflopstats(button, lastActions)
                     action = prefL.getAction(lastActions, bb, potSize, minRaise, maxRaise, myBank)
                     s.send(action)
                 
                 #goes to flop before swap logic
                 elif BswapLogicFlop:
+                    record.updateFlopStats()
                     action = BSLF.getAction()
                     s.send(action)
 
                 #goes to flop after swap logic
                 elif AswapLogic:
+                    record.updateFlopStats()
                     action = ASLF.getAction()
                     s.send(action)
 
                 #goes to 4th card before swap logic
-                elif BswapLogicRiver:
+                elif BswapLogicTurn:
+                    record.updateTurnStats()
                     action = BSLR.getAction()
                     s.send(action)
 
                 #goes to 4th card after swap logic
-                elif AswapLogicRiver:
+                elif AswapLogicTurn:
+                    record.updateTurnStats()
                     action = ASLR.getAction()
                     s.send(action)
 
                 #goes to showdown logic
                 else:
+                    record.updateShowdownStats()
                     action = RL.getAction()
                     s.send(action) 
 
