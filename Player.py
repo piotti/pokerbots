@@ -41,13 +41,18 @@ class Card:
         self.val = s[0]
         self.suit = s[1]
 
+    def __cmp__(self, other):
+        return cmp(FACE_VALS.index(self.val), FACE_VALS.index(other.val))
+
+
 class Player:
     def run(self, input_socket):
         # Get a file-object for reading packets from the socket.
         # Using this ensures that you get exactly one packet per read.
         f_in = input_socket.makefile()
-        above_fifty = pickle.load(open('above_fifty.pkl', 'rb'))
         hole_odds_dict = pickle.load(open('odds.pkl', 'rb'))
+        for i in range(13):
+            hole_odds_dict[(FACE_VALS[i]+'/'+FACE_VALS[i], False)] = PAIR_ODDS[i]
         while True:
             # Block until the engine sends us a packet.
             data = f_in.readline().strip()
@@ -79,18 +84,11 @@ class Player:
                 holeCard1 = Card(holeCard1)
                 holeCard2 = Card(holeCard2)
 
-                v1 = holeCard1[0]
-                v2 = holeCard2[0]
-                suited = holeCard1[1] == holeCard2[1]
-                if FACE_VALS.index(v1) < FACE_VALS.index(v2):
-                    good_hand = above_fifty[(v1+'/'+v2, suited)]
-                    hole_odds = hole_odds_dict[(v1+'/'+v2, suited)]
-                elif FACE_VALS.index(v1) > FACE_VALS.index(v2):
-                    good_hand = above_fifty[(v2+'/'+v1, suited)]
-                    hole_odds = hole_odds_dict[(v2+'/'+v1, suited)]
-                else:
-                    good_hand = FACE_VALS.index(v1) > 0
-                    hole_odds = PAIR_ODDS[FACE_VALS.index(v1)]
+
+                suited = holeCard1.suit == holeCard2.suit
+                card_key = min(holeCard1.val, holeCard2.val)+'/'+max(holeCard1.val, holeCard2.val)
+                hole_odds = hole_odds_dict[(card_key, suited)]
+                good_hand = hole_odds > 50
 
 
                 print hole_odds
@@ -99,9 +97,9 @@ class Player:
             elif word == "GETACTION":
 
                 [potSize, numBoardCards] = [int(e) for e in parts[1:3]]
-                boardCards = parts[3:3+numBoardCards]
+                boardCards = [Card(e) for e in parts[3:3+numBoardCards]]
                 numLastActions = int(parts[3+numBoardCards])
-                lastActions = [Action(e) for e inparts[4+numBoardCards:4+numBoardCards+numLastActions]]
+                lastActions = [Action(e) for e in parts[4+numBoardCards:4+numBoardCards+numLastActions]]
                 numLegalActions = int(parts[4+numBoardCards+numLastActions])
                 legalActions = [Action(e) for e in parts[5+numBoardCards+numLastActions:5+numBoardCards+numLastActions+numLegalActions]]
 
