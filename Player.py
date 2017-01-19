@@ -90,7 +90,7 @@ class Player:
 
 
                 suited = holeCard1.suit == holeCard2.suit
-                card_key = min(holeCard1.val, holeCard2.val)+'/'+max(holeCard1.val, holeCard2.val)
+                card_key = min(holeCard1, holeCard2).val+'/'+max(holeCard1, holeCard2).val
                 hole_odds = hole_odds_dict[(card_key, suited)]
                 good_hand = hole_odds > 50
 

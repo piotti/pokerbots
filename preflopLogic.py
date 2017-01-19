@@ -1,15 +1,16 @@
 
 
-def getAction(lastActions, bb, potSize, myBank):
+def getAction(lastActions, legalActions, bb, potSize, myBank, hole_odds):
+    good_hand = hole_odds > 50
     for e in legalActions:
         if e.typ == 'RAISE':
             minRaise = int(e.v1)
             maxRaise = int(e.v2)
             break
-    lastActionParts = lastActions[-1].split(':')
-    raised = lastActionParts[0] == 'RAISE'
+    last_action = lastActions[-1]
+    raised = last_action.typ == 'RAISE'
     if raised:
-        amount = int(lastActionParts[1])
+        amount = int(last_action.v1)
         ratio_bb = amount / bb
         ratio_pot = amount / potSize
     if hole_odds > 80:
