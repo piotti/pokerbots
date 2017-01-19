@@ -22,7 +22,6 @@ It is meant as an example of how a pokerbot should communicate with the engine.
 FACE_VALS = ['2','3','4','5','6','7','8','9','T','J','Q','K','A']
 PAIR_ODDS = [49.39, 52.84, 56.26, 59.64, 62.7, 65.73, 68.72, 71.67, 74.66, 77.15, 79.63, 82.12, 84.9]
 
-HAND_STATE = 0
 '''
 0 - After Post, preflop
 1 - After flop, pre-discard betting
@@ -113,20 +112,23 @@ class Player:
                 last_action = lastActions[-1]
 
 
+                can_discard = False
+                for e in legalActions:
+                    if e.typ == 'DISCARD':
+                        can_discard = True
+                        break
                 #indentifies preflop state
                 preflop = numBoardCards == 0
                 #identifies flop before swap state
-                BswapLogicFlop = numBoardCards == 3 and HAND_STATE == 0
+                BswapLogicFlop = last_action.typ == 'DEAL' and last_action.v1 == 'FLOP'
                 #identifies flop after swap state
-                AswapLogicFlop = numBoardCards == 3 and HAND_STATE == 1
+                AswapLogicFlop = numBoardCards == 3 and not can_discard
                 #identifies first river card state before swap
-                BswapLogicTurn = numBoardCards == 4 and HAND_STATE == 2
+                BswapLogicRiver = last_action.typ == 'DEAL' and last_action.v1 == 'TURN'
                 #identifies first river card state after swap
-                AswapLogicTurn = numBoardCards == 4 and HAND_STATE == 3
+                AswapLogicRiver = numBoardCards == 4 and not can_discard
                 #identifies showdown state
                 showdown = numBoardCards == 5
-
-                HAND_STATE += 1
 
                 # goes to preflop logic file to get the new action
                 if preflop:
