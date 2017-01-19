@@ -7,6 +7,7 @@ import BSwapLogic as BSLF
 import ASwapLogic as ASLF
 import BSwapLogicRiver as BSLR
 import ASwapLogicRiver as ASLR
+import RiverLogic as RL
 
 
 """
@@ -151,10 +152,8 @@ class Player:
 
                 #goes to showdown logic
                 else:
-                    if good_hand:
-                        s.send('CALL\n')
-                    else:
-                        s.send('CHECK\n')
+                    action = RL.getAction()
+                    s.send(action) 
 
                 
             elif word == "REQUESTKEYVALUES":
