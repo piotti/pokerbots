@@ -9,7 +9,7 @@ import BSwapLogicRiver as BSLR
 import ASwapLogicRiver as ASLR
 import RiverLogic as RL
 import history as h
-
+import evaluator as ev
 
 """
 Simple example pokerbot, written in python.
@@ -20,6 +20,7 @@ It is meant as an example of how a pokerbot should communicate with the engine.
 """
 
 FACE_VALS = ['2','3','4','5','6','7','8','9','T','J','Q','K','A']
+SUIT_BIN = ['s','h','d','c']
 PAIR_ODDS = [49.39, 52.84, 56.26, 59.64, 62.7, 65.73, 68.72, 71.67, 74.66, 77.15, 79.63, 82.12, 84.9]
 
 '''
@@ -49,6 +50,8 @@ class Card:
     def __init__(self, s):
         self.val = s[0]
         self.suit = s[1]
+        self.suitVal = SUIT_BIN.index(self.val)+1
+
 
     def __cmp__(self, other):
         return cmp(FACE_VALS.index(self.val), FACE_VALS.index(other.val))
