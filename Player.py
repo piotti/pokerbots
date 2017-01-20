@@ -32,6 +32,7 @@ PAIR_ODDS = [49.39, 52.84, 56.26, 59.64, 62.7, 65.73, 68.72, 71.67, 74.66, 77.15
 '''
 class Action:
     def __init__(self, s):
+        self.s = s
         parts = s.split(':')
         self.typ = parts[0]
         if len(parts) > 1:
@@ -40,6 +41,10 @@ class Action:
                 self.v2 = parts[2]
             if len(parts) > 3:
                 self.v3 = parts[3]
+    def __str__(self):
+        return self.s
+    def __repr__(self):
+        return self.s
 class Card:
     def __init__(self, s):
         self.val = s[0]
@@ -47,6 +52,9 @@ class Card:
 
     def __cmp__(self, other):
         return cmp(FACE_VALS.index(self.val), FACE_VALS.index(other.val))
+
+    def __str__(self):
+        return self.val + self.suit
 
 
 class Player:
@@ -102,6 +110,7 @@ class Player:
 
             elif word == "GETACTION":
 
+
                 [potSize, numBoardCards] = [int(e) for e in parts[1:3]]
                 boardCards = [Card(e) for e in parts[3:3+numBoardCards]]
                 numLastActions = int(parts[3+numBoardCards])
@@ -110,6 +119,8 @@ class Player:
                 legalActions = [Action(e) for e in parts[5+numBoardCards+numLastActions:5+numBoardCards+numLastActions+numLegalActions]]
 
                 last_action = lastActions[-1]
+
+                print lastActions
 
 
                 can_discard = False
