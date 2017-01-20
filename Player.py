@@ -9,7 +9,8 @@ import BSwapLogicRiver as BSLR
 import ASwapLogicRiver as ASLR
 import RiverLogic as RL
 import history as h
-import evaluator as ev
+from deuces import Card
+from deuces import Evaluator
 
 """
 Simple example pokerbot, written in python.
@@ -22,6 +23,7 @@ It is meant as an example of how a pokerbot should communicate with the engine.
 FACE_VALS = ['2','3','4','5','6','7','8','9','T','J','Q','K','A']
 SUIT_BIN = ['s','h','d','c']
 PAIR_ODDS = [49.39, 52.84, 56.26, 59.64, 62.7, 65.73, 68.72, 71.67, 74.66, 77.15, 79.63, 82.12, 84.9]
+e = Evaluator()
 
 '''
 HANDSTATES:
@@ -47,19 +49,6 @@ class Action:
         return self.s
     def __repr__(self):
         return self.s
-class Card:
-    def __init__(self, s):
-        self.val = s[0]
-        self.suit = s[1]
-        self.suitVal = SUIT_BIN.index(self.suit)+1
-
-
-    def __cmp__(self, other):
-        return cmp(FACE_VALS.index(self.val), FACE_VALS.index(other.val))
-
-    def __str__(self):
-        return self.val + self.suit
-
 
 class Player:
     def run(self, input_socket):
@@ -107,15 +96,7 @@ class Player:
                 otherBank = int(otherBank)
                 holeCard1 = Card(holeCard1)
                 holeCard2 = Card(holeCard2)
-
-
-                suited = holeCard1.suit == holeCard2.suit
-                card_key = min(holeCard1, holeCard2).val+'/'+max(holeCard1, holeCard2).val
-                hole_odds = hole_odds_dict[(card_key, suited)]
-                good_hand = hole_odds > 50
-
-
-                print hole_odds
+                hand = [holeCard1, holeCard2]
 
 
             elif word == "GETACTION":
@@ -206,7 +187,7 @@ class Player:
 
                 if preflop:
                     record.updatePreflopStats(button, lastActions)
-                    action = prefL.getAction(lastActions, minRaise, maxRaise, bb, potSize, myBank, hole_odds)
+                    action = prefL.getAction(button, lastActions, minRaise, maxRaise, bb, potSize, myBank, hand,e)
                     s.send(action)
                 
                 #goes to flop before swap logic
