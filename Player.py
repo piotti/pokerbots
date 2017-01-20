@@ -124,16 +124,22 @@ class Player:
                 #identifies flop after swap state
                 AswapLogicFlop = numBoardCards == 3 and not can_discard
                 #identifies first river card state before swap
-                BswapLogicRiver = last_action.typ == 'DEAL' and last_action.v1 == 'TURN'
+                BswapLogicTurn = last_action.typ == 'DEAL' and last_action.v1 == 'TURN'
                 #identifies first river card state after swap
-                AswapLogicRiver = numBoardCards == 4 and not can_discard
+                AswapLogicTurn = numBoardCards == 4 and not can_discard
                 #identifies showdown state
                 showdown = numBoardCards == 5
 
                 # goes to preflop logic file to get the new action
+                for e in legalActions:
+                    if e.typ == 'RAISE':
+                        minRaise = int(e.v1)
+                        maxRaise = int(e.v2)
+                        break
+
                 if preflop:
                     record.updatePreflopStats(button, lastActions)
-                    action = prefL.getAction(lastActions, bb, potSize, minRaise, maxRaise, myBank)
+                    action = prefL.getAction(lastActions, minRaise, maxRaise, bb, potSize, myBank, hole_odds)
                     s.send(action)
                 
                 #goes to flop before swap logic
@@ -143,7 +149,7 @@ class Player:
                     s.send(action)
 
                 #goes to flop after swap logic
-                elif AswapLogic:
+                elif AswapLogicFlop:
                     record.updateFlopStats()
                     action = ASLF.getAction()
                     s.send(action)
