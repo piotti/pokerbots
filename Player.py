@@ -90,6 +90,12 @@ class Player:
                 timeBank = float(timeBank)
             elif word == "NEWHAND":
                 HAND_STATE = 0
+                opp_bid_hist = []
+                opp_flop_disc = False
+                opp_turn_disc = False
+                call_amount = 0
+
+
                 [handId, button, holeCard1, holeCard2, myBank, otherBank, timeBank] = parts[1:]
                 handId = int(handId)
                 button = bool(button)
@@ -122,6 +128,47 @@ class Player:
 
                 print lastActions
 
+                for a in lastActions:
+                    if a.typ == 'POST':
+                        HAND_STATE = 0
+                        call_amount = bb//2 if button else 0
+                    elif a.typ == 'DEAL':
+                        if a.v1 == 'FLOP':
+                            HAND_STATE = 1
+                        elif a.v1 == 'TURN':
+                            HAND_STATE = 3
+                        elif a.v1 == 'RIVER':
+                            HAND_STATE = 5
+                        call_amount = 0
+                    elif a.typ == 'BET':
+                        call_amount += int(a.v1)
+                    elif a.typ == 'CALL':
+                        call_amount = 0
+                        HAND_STATE += 1
+                    elif a.typ == 'CHECK':
+                        call_amount = 0
+                    elif a.typ == 'FOLD':
+                        HAND_STATE += 1
+                        call_amount = 0
+                    elif a.typ == 'DISCARD':
+                        if HAND_STATE == 2:
+                            opp_flop_disc = True
+                        elif HAND_STATE == 4:
+                            opp_turn_disc = True
+                        else:
+                            raise ValueError
+                    elif a.typ == 'RAISE':
+                        call_amount += int(a.v1)
+                    elif a.typ == 'SHOW':
+                        #keep track of their cards here?
+                        pass
+                    elif a.typ == 'TIE':
+                        #keep track of this stat
+                        pass
+                    elif a.typ == 'WIN':
+                        #keep track of this stat
+                        pass
+
 
                 can_discard = False
                 for e in legalActions:
@@ -129,15 +176,15 @@ class Player:
                         can_discard = True
                         break
                 #indentifies preflop state
-                preflop = numBoardCards == 0
+                preflop = HAND_STATE == 0
                 #identifies flop before swap state
-                BswapLogicFlop = last_action.typ == 'DEAL' and last_action.v1 == 'FLOP'
+                BswapLogicFlop = HAND_STATE == 1
                 #identifies flop after swap state
-                AswapLogicFlop = numBoardCards == 3 and not can_discard
+                AswapLogicFlop = HAND_STATE == 2
                 #identifies first river card state before swap
-                BswapLogicTurn = last_action.typ == 'DEAL' and last_action.v1 == 'TURN'
+                BswapLogicTurn = HAND_STATE == 3
                 #identifies first river card state after swap
-                AswapLogicTurn = numBoardCards == 4 and not can_discard
+                AswapLogicTurn = HAND_STATE == 4
                 #identifies showdown state
                 showdown = numBoardCards == 5
 
