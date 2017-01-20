@@ -24,10 +24,11 @@ SUIT_BIN = ['s','h','d','c']
 PAIR_ODDS = [49.39, 52.84, 56.26, 59.64, 62.7, 65.73, 68.72, 71.67, 74.66, 77.15, 79.63, 82.12, 84.9]
 
 '''
+HANDSTATES:
 0 - After Post, preflop
-1 - After flop, pre-discard betting
+1 - After flop, discarding
 2 - After discard, betting
-3 - After turn, pre-discard betting
+3 - After turn, discarding
 4 - After discard, betting
 5 - After river
 '''
@@ -101,7 +102,7 @@ class Player:
 
                 [handId, button, holeCard1, holeCard2, myBank, otherBank, timeBank] = parts[1:]
                 handId = int(handId)
-                button = bool(button)
+                button = button == 'true'
                 myBank = int(myBank)
                 otherBank = int(otherBank)
                 holeCard1 = Card(holeCard1)
@@ -131,7 +132,7 @@ class Player:
 
                 print lastActions
 
-                for a in lastActions:
+                for a in lastActions[1:]:
                     if a.typ == 'POST':
                         HAND_STATE = 0
                         call_amount = bb//2 if button else 0
@@ -145,21 +146,26 @@ class Player:
                         call_amount = 0
                     elif a.typ == 'BET':
                         call_amount += int(a.v1)
+                        #update history that player bet x
                     elif a.typ == 'CALL':
                         call_amount = 0
-                        HAND_STATE += 1
                     elif a.typ == 'CHECK':
                         call_amount = 0
+                        if HAND_STATE in (1, 3) and not button:
+                            HAND_STATE += 1
                     elif a.typ == 'FOLD':
                         HAND_STATE += 1
                         call_amount = 0
                     elif a.typ == 'DISCARD':
-                        if HAND_STATE == 2:
+                        if HAND_STATE == 1:
                             opp_flop_disc = True
-                        elif HAND_STATE == 4:
+                        elif HAND_STATE == 3:
                             opp_turn_disc = True
                         else:
+                            print('hand state:', HAND_STATE)
                             raise ValueError
+                        if not button:
+                            HAND_STATE += 1
                     elif a.typ == 'RAISE':
                         call_amount += int(a.v1)
                     elif a.typ == 'SHOW':
