@@ -1,7 +1,6 @@
-from deuces import Evaluator
 
-def getAction(button, lastActions, minRaise, maxRaise, bb, potSize, myBank, hand):
-    e = Evaluator()
+def getAction(button, lastActions, minRaise, maxRaise, bb, potSize, myBank, hand, e):
+    
     handStrength = e.evaluate(hand,[])
     print handStrength
     rank = e.get_rank_class(handStrength)

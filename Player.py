@@ -23,7 +23,7 @@ It is meant as an example of how a pokerbot should communicate with the engine.
 FACE_VALS = ['2','3','4','5','6','7','8','9','T','J','Q','K','A']
 SUIT_BIN = ['s','h','d','c']
 PAIR_ODDS = [49.39, 52.84, 56.26, 59.64, 62.7, 65.73, 68.72, 71.67, 74.66, 77.15, 79.63, 82.12, 84.9]
-e = Evaluator()
+x = Evaluator()
 
 '''
 HANDSTATES:
@@ -94,8 +94,8 @@ class Player:
                 button = button == 'true'
                 myBank = int(myBank)
                 otherBank = int(otherBank)
-                holeCard1 = Card(holeCard1)
-                holeCard2 = Card(holeCard2)
+                holeCard1 = Card.new(holeCard1)
+                holeCard2 = Card.new(holeCard2)
                 hand = [holeCard1, holeCard2]
 
 
@@ -103,7 +103,7 @@ class Player:
 
 
                 [potSize, numBoardCards] = [int(e) for e in parts[1:3]]
-                boardCards = [Card(e) for e in parts[3:3+numBoardCards]]
+                boardCards = [Card.new(e) for e in parts[3:3+numBoardCards]]
                 numLastActions = int(parts[3+numBoardCards])
                 lastActions = [Action(e) for e in parts[4+numBoardCards:4+numBoardCards+numLastActions]]
                 numLegalActions = int(parts[4+numBoardCards+numLastActions])
@@ -187,7 +187,7 @@ class Player:
 
                 if preflop:
                     record.updatePreflopStats(button, lastActions)
-                    action = prefL.getAction(button, lastActions, minRaise, maxRaise, bb, potSize, myBank, hand,e)
+                    action = prefL.getAction(button, lastActions, minRaise, maxRaise, bb, potSize, myBank, hand, x)
                     s.send(action)
                 
                 #goes to flop before swap logic
