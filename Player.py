@@ -132,7 +132,7 @@ class Player:
 
                 # goes to preflop logic file to get the new action
                 if preflop:
-                    record.updatePreflopstats(button, lastActions)
+                    record.updatePreflopStats(button, lastActions)
                     action = prefL.getAction(lastActions, bb, potSize, minRaise, maxRaise, myBank)
                     s.send(action)
                 

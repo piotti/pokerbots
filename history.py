@@ -39,23 +39,23 @@ class history:
 		self.showdownFourBet = 0.0
 		self.showdownFoldToFourBet = 0.0
 
-	def updatePreflopStats(button, lastActions):
+	def updatePreflopStats(self, button, lastActions):
 		pass
-		self.preFlopUpdates += 0
-		if not button:
-			for action in lastActions:
+		# self.preFlopUpdates += 0
+		# if not button:
+		# 	for action in lastActions:
 
-		else:
+		# else:
 
 
 
-	def updateFlopStats():
-		pass
-
-	def updateTurnStats():
+	def updateFlopStats(self):
 		pass
 
-	def updateShowdownStats():
+	def updateTurnStats(self):
+		pass
+
+	def updateShowdownStats(self):
 		pass
 
 
