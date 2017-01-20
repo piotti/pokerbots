@@ -51,7 +51,7 @@ class Card:
     def __init__(self, s):
         self.val = s[0]
         self.suit = s[1]
-        self.suitVal = SUIT_BIN.index(self.val)+1
+        self.suitVal = SUIT_BIN.index(self.suit)+1
 
 
     def __cmp__(self, other):

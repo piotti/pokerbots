@@ -1,12 +1,12 @@
 def evalFlop(boardCards, holeCardOne, holeCardTwo):
-	new = [holeCardTwo, holeCardOne]
-	flushChance = flush(board,holes)
+	holes = [holeCardTwo, holeCardOne]
+	flushChance = flush(boardCards, holes)
 	straightChance = 0.0
-	pair = False
-	twoPair = False
-	triple = False
-	quad = False
-	highCardVal = None
+	pair = pair(boardCards, holes)
+	twoPair = twoPair(boardCards, holes)
+	trip = triple(boardCards, holes)
+	qd = quad(boardCards, holes)
+	highCardVal = max([c.val for c in boardCards ], [d.val for d in holes])
 
 
 def flush(board, holes):
@@ -32,8 +32,27 @@ def flush(board, holes):
 		else:
 			return 0.0
 	else:
-		return 0
+		return 0.0
 
+def pair(board, holes):
+	boardVals = [v.val for v in board]
+	holevals = [y.val for y in holes]
+	return len(boardVals+holevals) != len(set(boardVals+holevals))
+
+def twoPair(board, holes):
+	boardVals = [v.val for v in board]
+	holevals = [y.val for y in holes]
+	return len(boardVals+holevals)-2 == len(set(boardVals+holevals))
+
+def triple(board, holes):
+	boardVals = [v.val for v in board]
+	holevals = [y.val for y in holes]
+	return len(boardVals+holevals)-3 == len(set(boardVals+holevals))
+
+def quad(board, holes):
+	boardVals = [v.val for v in board]
+	holevals = [y.val for y in holes]
+	return len(boardVals+holevals)-4 == len(set(boardVals+holevals))
 
 		
 
