@@ -96,7 +96,7 @@ class Player:
                 opp_bid_hist = []
                 opp_flop_disc = False
                 opp_turn_disc = False
-                call_amount = 0
+                callAmount = 0
 
 
 
@@ -208,7 +208,7 @@ class Player:
 
                 if preflop:
                     record.updatePreflopStats(button, last_action)
-                    action = prefL.getAction(button, lastActions, minRaise, maxRaise, bb, potSize, myBank, hand, hole_odds, x)
+                    action = prefL.getAction(lastActions, minRaise, maxRaise, bb, potSize, myBank, hand, hole_odds)
                     s.send(action)
                 
                 #goes to flop before swap logic
@@ -220,7 +220,7 @@ class Player:
                 #goes to flop after swap logic
                 elif AswapLogicFlop:
                     record.updateFlopStats()
-                    action = ASLF.getAction()
+                    action = ASLF.getAction(button, lastActions, minRaise, maxRaise, potSize, myBank, hand, boardCards, x)
                     s.send(action)
 
                 #goes to 4th card before swap logic
