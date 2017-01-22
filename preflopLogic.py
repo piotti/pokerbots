@@ -1,7 +1,7 @@
 
-def getAction(button, lastActions, minRaise, maxRaise, bb, potSize, myBank, hand, e):
+def getAction(button, lastActions, minRaise, maxRaise, bb, potSize, myBank, hand, hole_odds, e):
     
-    handStrength = e.evaluate(hand,[])
+    handStrength = e.evaluate(hand)
     print handStrength
     rank = e.get_rank_class(handStrength)
     print handStrength

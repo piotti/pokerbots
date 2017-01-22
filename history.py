@@ -39,13 +39,16 @@ class history:
 		self.showdownFourBet = 0.0
 		self.showdownFoldToFourBet = 0.0
 
+		self.hands = {}
 		self.actions = {}
 
 	def addAction(self, action, **kwargs):
 		if action not in self.actions:
 			self.actions[action] = []
 		self.actions[action].append(kwargs)
-		
+
+	def addHand(self, handId, hand):
+		self.hands[handId] = hand
 	def updatePreflopStats(self, button, lastActions):
 		pass
 		# self.preFlopUpdates += 0

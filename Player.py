@@ -89,11 +89,16 @@ class Player:
                 call_amount = 0
 
 
+
                 [handId, button, holeCard1, holeCard2, myBank, otherBank, timeBank] = parts[1:]
                 handId = int(handId)
                 button = button == 'true'
                 myBank = int(myBank)
                 otherBank = int(otherBank)
+                if FACE_VALS.index(holeCard1) < FACE_VALS.index(holeCard2):
+                    hole_odds = hole_odds_dict[holeCard1 + '/' + holeCard2]
+                else:
+                    hole_odds = hole_odds_dict[holeCard2 + '/' + holeCard1]
                 holeCard1 = Card.new(holeCard1)
                 holeCard2 = Card.new(holeCard2)
                 hand = [holeCard1, holeCard2]
@@ -113,6 +118,9 @@ class Player:
 
                 print lastActions
 
+                recordInfo = {'handId':handId, 'handState':HAND_STATE, 'button':button, 'boardCards':boardCards}
+                addRecord = False
+
                 for a in lastActions[1:]:
                     if a.typ == 'POST':
                         HAND_STATE = 0
@@ -128,36 +136,38 @@ class Player:
                     elif a.typ == 'BET':
                         call_amount += int(a.v1)
                         #update history that player bet x
+                        addRecord = True
                     elif a.typ == 'CALL':
+                        addRecord = True
+                        recordInfo['callAmount'] = callAmount
                         call_amount = 0
                     elif a.typ == 'CHECK':
+                        addRecord = True
                         call_amount = 0
                         if HAND_STATE in (1, 3) and not button:
                             HAND_STATE += 1
                     elif a.typ == 'FOLD':
+                        addRecord = True
+                        recordInfo['callAmount'] = callAmount
                         HAND_STATE += 1
                         call_amount = 0
                     elif a.typ == 'DISCARD':
-                        if HAND_STATE == 1:
-                            opp_flop_disc = True
-                        elif HAND_STATE == 3:
-                            opp_turn_disc = True
-                        else:
-                            print('hand state:', HAND_STATE)
-                            raise ValueError
+                        addRecord = True
                         if not button:
                             HAND_STATE += 1
                     elif a.typ == 'RAISE':
                         call_amount += int(a.v1)
                     elif a.typ == 'SHOW':
-                        #keep track of their cards here?
-                        pass
+                        record.addHand(handId, Card.new(a.v1), Card.new(a.v2))
                     elif a.typ == 'TIE':
                         #keep track of this stat
                         pass
                     elif a.typ == 'WIN':
                         #keep track of this stat
                         pass
+
+                    if addRecord:
+                        record.addAction(a.typ, **recordInfo)
 
 
                 can_discard = False
@@ -187,7 +197,7 @@ class Player:
 
                 if preflop:
                     record.updatePreflopStats(button, lastActions)
-                    action = prefL.getAction(button, lastActions, minRaise, maxRaise, bb, potSize, myBank, hand, x)
+                    action = prefL.getAction(button, lastActions, minRaise, maxRaise, bb, potSize, myBank, hand, hole_odds, x)
                     s.send(action)
                 
                 #goes to flop before swap logic
