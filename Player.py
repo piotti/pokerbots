@@ -9,7 +9,7 @@ import BSwapLogicRiver as BSLR
 import ASwapLogicRiver as ASLR
 import RiverLogic as RL
 import history as h
-from deuces import Card
+from deuces import Card as DeucesCard
 from deuces import Evaluator
 
 """
@@ -49,6 +49,16 @@ class Action:
         return self.s
     def __repr__(self):
         return self.s
+
+class Card:
+    def __init__(self, s):
+        self.s = s
+        self.num = DeucesCard.new(s)
+        self.fv = s[0]
+        self.suit = s[1]
+    def __str__(self):
+        return self.s
+
 
 class Player:
     def run(self, input_socket):
@@ -100,8 +110,8 @@ class Player:
                     hole_odds = hole_odds_dict[(holeCard1[0] + '/' + holeCard2[0], suited)]
                 else:
                     hole_odds = hole_odds_dict[(holeCard2[0] + '/' + holeCard1[0], suited)]
-                holeCard1 = Card.new(holeCard1)
-                holeCard2 = Card.new(holeCard2)
+                holeCard1 = Card(holeCard1)
+                holeCard2 = Card(holeCard2)
                 hand = [holeCard1, holeCard2]
 
 
@@ -109,7 +119,7 @@ class Player:
 
 
                 [potSize, numBoardCards] = [int(e) for e in parts[1:3]]
-                boardCards = [Card.new(e) for e in parts[3:3+numBoardCards]]
+                boardCards = [Card(e) for e in parts[3:3+numBoardCards]]
                 numLastActions = int(parts[3+numBoardCards])
                 lastActions = [Action(e) for e in parts[4+numBoardCards:4+numBoardCards+numLastActions]]
                 numLegalActions = int(parts[4+numBoardCards+numLastActions])
@@ -159,7 +169,7 @@ class Player:
                     elif a.typ == 'RAISE':
                         call_amount += int(a.v1)
                     elif a.typ == 'SHOW':
-                        record.addHand(handId, Card.new(a.v1), Card.new(a.v2))
+                        record.addHand(handId, Card(a.v1), Card(a.v2))
                     elif a.typ == 'TIE':
                         #keep track of this stat
                         pass
@@ -197,7 +207,7 @@ class Player:
                         break
 
                 if preflop:
-                    record.updatePreflopStats(button, lastActions)
+                    record.updatePreflopStats(button, last_action)
                     action = prefL.getAction(button, lastActions, minRaise, maxRaise, bb, potSize, myBank, hand, hole_odds, x)
                     s.send(action)
                 
