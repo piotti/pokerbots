@@ -42,13 +42,30 @@ class history:
 		self.hands = {}
 		self.actions = {}
 
+		### Fields relating to current hand ###
+		self.log = []
+
 	def addAction(self, action, **kwargs):
 		if action not in self.actions:
 			self.actions[action] = []
 		self.actions[action].append(kwargs)
-
 	def addHand(self, handId, hand):
 		self.hands[handId] = hand
+
+
+	def newHand(self, hand, button):
+		self.log = []
+
+	def update(self, action, us=False):
+		pass
+		
+
+	def updateMultiple(self, actions):
+		for a in actions:
+			self.update(a)
+
+
+
 	def updatePreflopStats(self, button, last_action):
 		pass
 		self.preFlopUpdates += 1

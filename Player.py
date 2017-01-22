@@ -34,21 +34,6 @@ HANDSTATES:
 4 - After discard, betting
 5 - After river
 '''
-class Action:
-    def __init__(self, s):
-        self.s = s
-        parts = s.split(':')
-        self.typ = parts[0]
-        if len(parts) > 1:
-            self.v1 = parts[1]
-            if len(parts) > 2:
-                self.v2 = parts[2]
-            if len(parts) > 3:
-                self.v3 = parts[3]
-    def __str__(self):
-        return self.s
-    def __repr__(self):
-        return self.s
 
 class Card:
     def __init__(self, s):
@@ -57,6 +42,45 @@ class Card:
         self.fv = s[0]
         self.suit = s[1]
     def __str__(self):
+        return self.s
+
+class Action:
+    PERFORMED_ACTION_DICT = {
+        'BET':[('amount', int), ('actor', str)],
+        'CALL':[('actor', str)],
+        'CHECK':[('actor', str)],
+        'DEAL':[('street', str)],
+        'FOLD':[('actor', str)],
+        'POST':[('amount', int), ('actor', str)],
+        'DISCARD':[('actor', str)],
+        'RAISE':[('amount', int), ('actor', str)],
+        'REFUND':[('amount', int), ('actor', str)],
+        'SHOW':[('card1', Card), ('card2', Card), ('actor', str)],
+        'TIE': [('amount', int),('actor', str)],
+        'WIN': [('amount', int),('actor', str)]
+    }
+    LEGAL_ACTION_DICT = {
+        'BET':[('minBet', int), ('maxBet', int)],
+        'CALL':[],
+        'CHECK':[],
+        'FOLD':[],
+        'DISCARD':[('actor', str)], #Card info here?
+        'RAISE':[('minRaise', int), ('maxRaise', int)]
+    }
+    def __init__(self, s, action_type):
+        self.s = s
+        parts = s.split(':')
+        self.typ = parts.pop(0)
+        dic = Action.LEGAL_ACTION_DICT if action_type == 'LEGAL' else Action.PERFORMED_ACTION_DICT
+        for i, e in enumerate(parts):
+            setattr(
+                self,
+                dic[self.typ][i][0],
+                dic[self.typ][i][1](e)
+            )
+    def __str__(self):
+        return self.s
+    def __repr__(self):
         return self.s
 
 
@@ -114,6 +138,8 @@ class Player:
                 holeCard2 = Card(holeCard2)
                 hand = [holeCard1, holeCard2]
 
+                record.newHand(hand, button)
+
 
             elif word == "GETACTION":
 
@@ -121,9 +147,9 @@ class Player:
                 [potSize, numBoardCards] = [int(e) for e in parts[1:3]]
                 boardCards = [Card(e) for e in parts[3:3+numBoardCards]]
                 numLastActions = int(parts[3+numBoardCards])
-                lastActions = [Action(e) for e in parts[4+numBoardCards:4+numBoardCards+numLastActions]]
+                lastActions = [Action(e, 'PERFORMED') for e in parts[4+numBoardCards:4+numBoardCards+numLastActions]]
                 numLegalActions = int(parts[4+numBoardCards+numLastActions])
-                legalActions = [Action(e) for e in parts[5+numBoardCards+numLastActions:5+numBoardCards+numLastActions+numLegalActions]]
+                legalActions = [Action(e, 'LEGAL') for e in parts[5+numBoardCards+numLastActions:5+numBoardCards+numLastActions+numLegalActions]]
 
                 last_action = lastActions[-1]
 
@@ -137,15 +163,15 @@ class Player:
                         HAND_STATE = 0
                         call_amount = bb//2 if button else 0
                     elif a.typ == 'DEAL':
-                        if a.v1 == 'FLOP':
+                        if a.street == 'FLOP':
                             HAND_STATE = 1
-                        elif a.v1 == 'TURN':
+                        elif a.street == 'TURN':
                             HAND_STATE = 3
-                        elif a.v1 == 'RIVER':
+                        elif a.street == 'RIVER':
                             HAND_STATE = 5
                         call_amount = 0
                     elif a.typ == 'BET':
-                        call_amount += int(a.v1)
+                        call_amount += a.amount
                         #update history that player bet x
                         addRecord = True
                     elif a.typ == 'CALL':
@@ -159,7 +185,7 @@ class Player:
                             HAND_STATE += 1
                     elif a.typ == 'FOLD':
                         addRecord = True
-                        recordInfo['callAmount'] = callAmount
+                        recordInfo['callAmount'] = call_amount
                         HAND_STATE += 1
                         call_amount = 0
                     elif a.typ == 'DISCARD':
@@ -167,9 +193,9 @@ class Player:
                         if not button:
                             HAND_STATE += 1
                     elif a.typ == 'RAISE':
-                        call_amount += int(a.v1)
+                        call_amount += a.amount
                     elif a.typ == 'SHOW':
-                        record.addHand(handId, Card(a.v1), Card(a.v2))
+                        record.addHand(handId, Card(a.card1), Card(a.card2))
                     elif a.typ == 'TIE':
                         #keep track of this stat
                         pass
@@ -179,6 +205,9 @@ class Player:
 
                     if addRecord:
                         record.addAction(a.typ, **recordInfo)
+
+
+                record.updateMultiple(lastActions)
 
 
                 can_discard = False
@@ -202,44 +231,40 @@ class Player:
                 # goes to preflop logic file to get the new action
                 for e in legalActions:
                     if e.typ == 'RAISE':
-                        minRaise = int(e.v1)
-                        maxRaise = int(e.v2)
+                        minRaise = e.minRaise
+                        maxRaise = e.maxRaise
                         break
 
                 if preflop:
-                    record.updatePreflopStats(button, last_action)
                     action = prefL.getAction(lastActions, minRaise, maxRaise, bb, potSize, myBank, hand, hole_odds)
                     s.send(action)
                 
                 #goes to flop before swap logic
                 elif BswapLogicFlop:
-                    record.updateFlopStats()
                     action = BSLF.getAction()
                     s.send(action)
 
                 #goes to flop after swap logic
                 elif AswapLogicFlop:
-                    record.updateFlopStats()
                     action = ASLF.getAction(button, lastActions, minRaise, maxRaise, potSize, myBank, hand, boardCards, x)
                     s.send(action)
 
                 #goes to 4th card before swap logic
                 elif BswapLogicTurn:
-                    record.updateTurnStats()
                     action = BSLR.getAction()
                     s.send(action)
 
                 #goes to 4th card after swap logic
                 elif AswapLogicTurn:
-                    record.updateTurnStats()
                     action = ASLR.getAction()
                     s.send(action)
 
                 #goes to showdown logic
                 else:
-                    record.updateShowdownStats()
                     action = RL.getAction()
                     s.send(action) 
+
+                record.update(action, us=True)
 
                 
             elif word == "REQUESTKEYVALUES":

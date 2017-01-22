@@ -11,7 +11,7 @@ def getAction(lastActions, minRaise, maxRaise, bb, potSize, myBank, hand, hole_o
     raise_amount = min(max(minRaise, 0.5*potSize), maxRaise)
     ratio_bb = 0
     if raised:
-        amount = int(last_action.v1)
+        amount = last_action.amount
         ratio_bb = amount / bb
         ratio_pot = amount / potSize
        
