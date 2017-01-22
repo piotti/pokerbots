@@ -49,9 +49,9 @@ class history:
 
 	def addHand(self, handId, hand):
 		self.hands[handId] = hand
-	def updatePreflopStats(self, button, lastActions):
+	def updatePreflopStats(self, button, last_action):
 		pass
-		# self.preFlopUpdates += 0
+		self.preFlopUpdates += 1
 		# if not button:
 		# 	for action in lastActions:
 

@@ -95,10 +95,11 @@ class Player:
                 button = button == 'true'
                 myBank = int(myBank)
                 otherBank = int(otherBank)
-                if FACE_VALS.index(holeCard1) < FACE_VALS.index(holeCard2):
-                    hole_odds = hole_odds_dict[holeCard1 + '/' + holeCard2]
+                suited = holeCard1[1] == holeCard2[1]
+                if FACE_VALS.index(holeCard1[0]) < FACE_VALS.index(holeCard2[0]):
+                    hole_odds = hole_odds_dict[(holeCard1[0] + '/' + holeCard2[0], suited)]
                 else:
-                    hole_odds = hole_odds_dict[holeCard2 + '/' + holeCard1]
+                    hole_odds = hole_odds_dict[(holeCard2[0] + '/' + holeCard1[0], suited)]
                 holeCard1 = Card.new(holeCard1)
                 holeCard2 = Card.new(holeCard2)
                 hand = [holeCard1, holeCard2]

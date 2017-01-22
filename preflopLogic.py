@@ -1,10 +1,7 @@
 
 def getAction(button, lastActions, minRaise, maxRaise, bb, potSize, myBank, hand, hole_odds, e):
     
-    handStrength = e.evaluate(hand)
-    print handStrength
-    rank = e.get_rank_class(handStrength)
-    print handStrength
+    
     # last_action = lastActions[-1]
     # raised = last_action.typ == 'RAISE'
     # if raised:
