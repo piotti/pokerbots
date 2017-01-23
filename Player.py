@@ -11,6 +11,7 @@ import RiverLogic as RL
 import history as h
 from deuces import Card as DeucesCard
 from deuces import Evaluator
+from deuces import Deck
 
 """
 Simple example pokerbot, written in python.
@@ -24,6 +25,7 @@ FACE_VALS = ['2','3','4','5','6','7','8','9','T','J','Q','K','A']
 SUIT_BIN = ['s','h','d','c']
 PAIR_ODDS = [49.39, 52.84, 56.26, 59.64, 62.7, 65.73, 68.72, 71.67, 74.66, 77.15, 79.63, 82.12, 84.9]
 x = Evaluator()
+dk = Deck()
 
 '''
 HANDSTATES:
@@ -71,6 +73,11 @@ class Action:
         self.s = s
         parts = s.split(':')
         self.typ = parts.pop(0)
+        if self.typ == 'DISCARD' and action_type == 'PERFORMED' and len(parts) == 3:
+            self.actor = parts[2]
+            self.old = Card(parts[0])
+            self.new = Card(parts[1])
+            return 
         dic = Action.LEGAL_ACTION_DICT if action_type == 'LEGAL' else Action.PERFORMED_ACTION_DICT
         for i, e in enumerate(parts):
             setattr(
@@ -180,7 +187,7 @@ class Player:
                     elif a.typ == 'CHECK':
                         addRecord = True
                         call_amount = 0
-                        if HAND_STATE in (1, 3) and not button:
+                        if HAND_STATE in (1, 3) and button:
                             HAND_STATE += 1
                     elif a.typ == 'FOLD':
                         addRecord = True
@@ -195,7 +202,6 @@ class Player:
                         addRecord = True
                         recordInfo['amount'] = a.amount
                         call_amount += a.amount
-                        if HAND_STATE = 
                     elif a.typ == 'SHOW':
                         record.addHand(handId, Card(a.card1), Card(a.card2))
                     elif a.typ == 'TIE':
@@ -205,7 +211,7 @@ class Player:
                         #keep track of this stat
                         pass
 
-                    record.addAction(a.typ, **recordInfo)
+                    #record.addAction(a.typ, **recordInfo)
 
 
                 can_discard = False
@@ -239,17 +245,17 @@ class Player:
                 
                 #goes to flop before swap logic
                 elif BswapLogicFlop:
-                    action = BSLF.getAction()
+                    action = BSLF.getAction(lastActions, minRaise, maxRaise, potSize, myBank, hand, boardCards, x, dk)
                     s.send(action)
 
                 #goes to flop after swap logic
                 elif AswapLogicFlop:
-                    action = ASLF.getAction(button, lastActions, minRaise, maxRaise, potSize, myBank, hand, boardCards, x)
+                    action = ASLF.getAction(button, lastActions, minRaise, maxRaise, potSize, myBank, hand, boardCards, x, dk)
                     s.send(action)
 
                 #goes to 4th card before swap logic
                 elif BswapLogicTurn:
-                    action = BSLR.getAction()
+                    action = BSLR.getAction(lastActions, minRaise, maxRaise, potSize, myBank, hand, boardCards, x, dk)
                     s.send(action)
 
                 #goes to 4th card after swap logic
@@ -262,7 +268,7 @@ class Player:
                     action = RL.getAction()
                     s.send(action) 
 
-                record.update(action)
+                #record.update(action)
 
                 
             elif word == "REQUESTKEYVALUES":

@@ -73,7 +73,8 @@ class history:
 	def newHand(self, hand, button):
 		self.log = []
 
-	def preFlopRaise()
+	def preFlopRaise():
+		pass
 
 		
 

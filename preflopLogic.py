@@ -8,12 +8,11 @@ def getAction(lastActions, minRaise, maxRaise, bb, potSize, myBank, hand, hole_o
         if card.fv == 'A' or card.fv == 'K':
             AorK = True
 
-    last_action = lastActions[-1]
-    raised = last_action.typ == 'RAISE'
+    raised = lastActions[-1].typ == 'RAISE'
     raise_amount = min(max(minRaise, 0.5*potSize), maxRaise)
     ratio_bb = 0
     if raised:
-        amount = last_action.amount
+        amount = lastActions[-1].amount
         ratio_bb = amount / bb
         ratio_pot = amount / potSize
        
@@ -23,7 +22,8 @@ def getAction(lastActions, minRaise, maxRaise, bb, potSize, myBank, hand, hole_o
         return 'RAISE:'+str(raise_amount)+'\n'
         
     elif hole_odds > 60: 
-        if raise_amount / myBank <= .44:
+        print raise_amount, "raise_amount", 200-(potSize/2), 'chips left'
+        if raise_amount / (200-(potSize/2)) <= .5:
             print 'raised!', st
             return 'RAISE:'+str(raise_amount)+'\n'
         else:
