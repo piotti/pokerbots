@@ -2,7 +2,9 @@
 def getAction(lastActions, minRaise, maxRaise, bb, potSize, myBank, hand, hole_odds):
     ranks = []
     AorK = False
+    st = []
     for card in hand:
+        st.append((card.fv, card.suit))
         if card.fv == 'A' or card.fv == 'K':
             AorK = True
 
@@ -16,13 +18,13 @@ def getAction(lastActions, minRaise, maxRaise, bb, potSize, myBank, hand, hole_o
         ratio_pot = amount / potSize
        
 
-    if hole_odds > 80:
-        print 'raised!'
+    if hole_odds > 70:
+        print 'raised!', st
         return 'RAISE:'+str(raise_amount)+'\n'
         
-    elif hole_odds > 65: 
+    elif hole_odds > 60: 
         if raise_amount / myBank <= .44:
-            print 'raised!'
+            print 'raised!', st
             return 'RAISE:'+str(raise_amount)+'\n'
         else:
 
