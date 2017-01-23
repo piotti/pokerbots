@@ -172,7 +172,6 @@ class Player:
                         call_amount = 0
                     elif a.typ == 'BET':
                         call_amount += a.amount
-                        #update history that player bet x
                         addRecord = True
                     elif a.typ == 'CALL':
                         addRecord = True
@@ -193,7 +192,10 @@ class Player:
                         if not button:
                             HAND_STATE += 1
                     elif a.typ == 'RAISE':
+                        addRecord = True
+                        recordInfo['amount'] = a.amount
                         call_amount += a.amount
+                        if HAND_STATE = 
                     elif a.typ == 'SHOW':
                         record.addHand(handId, Card(a.card1), Card(a.card2))
                     elif a.typ == 'TIE':
@@ -203,11 +205,7 @@ class Player:
                         #keep track of this stat
                         pass
 
-                    if addRecord:
-                        record.addAction(a.typ, **recordInfo)
-
-
-                record.updateMultiple(lastActions)
+                    record.addAction(a.typ, **recordInfo)
 
 
                 can_discard = False
@@ -264,7 +262,7 @@ class Player:
                     action = RL.getAction()
                     s.send(action) 
 
-                record.update(action, us=True)
+                record.update(action)
 
                 
             elif word == "REQUESTKEYVALUES":
