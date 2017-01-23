@@ -24,7 +24,9 @@ def getAction(lastActions, minRaise, maxRaise, bb, potSize, myBank, hand, hole_o
         if raise_amount / myBank <= .44:
             print 'raised!'
             return 'RAISE:'+str(raise_amount)+'\n'
+        else:
 
+            return 'CALL\n'
     else:
         if raised:
             if ratio_bb <= 3 and ratio_bb != 0:
