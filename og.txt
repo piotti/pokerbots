@@ -1,0 +1,16 @@
+{
+p_all_in_t":70,
+"p_raise_t":60,
+"p_call_t_one":3,
+"p_call_t_two":5,
+"p_bluff":0.06,
+"f_check":0.6,
+"f_raise":0.5,
+"f_bluff":0.03,
+"r_check":0.55,
+"r_raise":0.45,
+"r_bluff":0.03,
+"s_check":0.5,
+"s_raise":0.47,
+"s_bluff":0.02
+}

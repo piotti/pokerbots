@@ -1,5 +1,7 @@
 import itertools
-def getAction(button, lastActions, minRaise, maxRaise, potSize, myBank, hand, board, x, dk):
+import random
+def getAction(button, lastActions, minRaise, maxRaise, potSize, myBank, hand, board, x, dk, r_check, r_raise,r_bluff):
+	rand = random.random()
 	boardNums = [boardCard.num for boardCard in board]
 	rating = x.evaluate([hand[0].num]+[hand[1].num], boardNums)
 	score = x.get_rank_class(rating)
@@ -19,10 +21,10 @@ def getAction(button, lastActions, minRaise, maxRaise, potSize, myBank, hand, bo
 		if tempScore > score:
 			rat += 1
 	rat = rat / len(might)
-	if rat > .50:
+	if rat > r_check:
 		return "CHECK\n"
 		
-	if rat < .45:
+	if rat < r_raise or r_bluff > rand:
 		return "RAISE:" +str(raise_amount)+"\n"
 	else:
 		return "CALL\n"

@@ -13,13 +13,13 @@ from deuces import Card as DeucesCard
 from deuces import Evaluator
 from deuces import Deck
 
-"""
-Simple example pokerbot, written in python.
+import json
 
-This is an example of a bare bones pokerbot. It only sets up the socket
-necessary to connect with the engine and then always returns the same action.
-It is meant as an example of how a pokerbot should communicate with the engine.
 """
+Dictionary containing all the parameters that could be varied in logic to optimize extracting value from hands
+"""
+ps = json.loads(open('params.txt', 'r').read())
+
 
 FACE_VALS = ['2','3','4','5','6','7','8','9','T','J','Q','K','A']
 SUIT_BIN = ['s','h','d','c']
@@ -240,7 +240,7 @@ class Player:
                         break
 
                 if preflop:
-                    action = prefL.getAction(lastActions, minRaise, maxRaise, bb, potSize, myBank, hand, hole_odds)
+                    action = prefL.getAction(lastActions,minRaise,maxRaise,bb,potSize,myBank,hand,hole_odds,ps['p_all_in_t'],ps['p_raise_t'],ps['p_call_t_one'],ps['p_call_t_two'],ps['p_bluff'])
                     s.send(action)
                 
                 #goes to flop before swap logic
@@ -250,7 +250,7 @@ class Player:
 
                 #goes to flop after swap logic
                 elif AswapLogicFlop:
-                    action = ASLF.getAction(button, lastActions, minRaise, maxRaise, potSize, myBank, hand, boardCards, x, dk)
+                    action = ASLF.getAction(button,lastActions,minRaise,maxRaise,potSize,myBank,hand,boardCards,x,dk,ps['f_check'],ps['f_raise'],ps['f_bluff'])
                     s.send(action)
 
                 #goes to 4th card before swap logic
@@ -260,12 +260,12 @@ class Player:
 
                 #goes to 4th card after swap logic
                 elif AswapLogicTurn:
-                    action = ASLR.getAction(button, lastActions, minRaise, maxRaise, potSize, myBank, hand, boardCards, x, dk)
+                    action = ASLR.getAction(button,lastActions,minRaise,maxRaise,potSize,myBank,hand,boardCards,x,dk,ps['r_check'],ps['r_raise'],ps['r_bluff'])
                     s.send(action)
 
                 #goes to showdown logic
                 else:
-                    action = RL.getAction(button, lastActions, minRaise, maxRaise, potSize, myBank, hand, boardCards, x, dk)
+                    action = RL.getAction(button,lastActions,minRaise,maxRaise,potSize,myBank,hand,boardCards,x,dk,ps['s_check'],ps['s_raise'],ps['s_bluff'])
                     s.send(action) 
 
                 #record.update(action)
