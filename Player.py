@@ -260,12 +260,12 @@ class Player:
 
                 #goes to 4th card after swap logic
                 elif AswapLogicTurn:
-                    action = ASLR.getAction()
+                    action = ASLR.getAction(button, lastActions, minRaise, maxRaise, potSize, myBank, hand, boardCards, x, dk)
                     s.send(action)
 
                 #goes to showdown logic
                 else:
-                    action = RL.getAction()
+                    action = RL.getAction(button, lastActions, minRaise, maxRaise, potSize, myBank, hand, boardCards, x, dk)
                     s.send(action) 
 
                 #record.update(action)

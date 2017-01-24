@@ -19,7 +19,7 @@ def getAction(button, lastActions, minRaise, maxRaise, potSize, myBank, hand, bo
 		if tempScore > score:
 			rat += 1
 	rat = rat / len(might)
-	if rat > .52:
+	if rat > .55:
 		return "CHECK\n"
 		
 	if rat < .45:
