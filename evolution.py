@@ -1,17 +1,15 @@
 import random
 import json
+import gradDescent
 
 winners = [int(e) for e in open('winners.txt', 'r').readlines()]
 paramList = json.loads(open('params.txt', 'r').read())
 
-for i in range(50):
-	w = winners[i]
-	l = w+1 if w%2==0 else w-1
-	for param in paramList[w]:
-		mu = paramList[w][param]
-		paramList[l][param] = max(2*mu/5, min(random.gauss(mu, mu/5), 8*mu/5))
 
-random.shuffle(paramList)
+w = winners[-1]
+l = w+1 if w%2==0 else w-1
+paramList[l][0] = gradDescent.newParam(paramList[w][0], paramList[l][0], False)
+
 f = open('params.txt', 'w')
 f.write(json.dumps(paramList))
 f.close()
